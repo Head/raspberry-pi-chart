@@ -1,0 +1,253 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head>
+
+    <meta charset="UTF-8">
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highstock/1.3.7/highstock.js"></script>
+    <script type="text/javascript" src="https://bitcoinaverage.com/js/lib/jquery.formatCurrency.js"></script>
+
+    <style type="text/css">
+        #small-chart{height:320px;}
+        .chartWithOverlay {
+            position: relative;
+            width: 100%;
+        }
+        .overlay {
+            position: absolute;
+            top: 2px;   /* chartArea top  */
+            left: 35px; /* chartArea left */
+        }
+        .overlayPriceShift {
+            position: absolute;
+            bottom: 2px;   /* chartArea top  */
+            left: 35px; /* chartArea left */
+        }
+        .currentPrice {
+            font-family: 'Arial';
+            font-size: 11em;
+            opacity: 0.4;
+            position: relative;
+            color: #5a5a5a;
+            left: 20px;
+            top: 40px;
+        }
+
+        .main-price-shift{
+            padding: 1.5em 1em;
+        }
+        .main-price-highlow {
+            padding: 1.5em 0;
+        }
+
+        .main-price-shift .price-shift-title,
+        .main-volume .volume-title {
+            color: #999;
+        }
+
+        .main-price-shift[data-trend="up"] {
+            color: green;
+        }
+
+        .main-price-shift[data-trend="down"] {
+            color: red;
+        }
+
+        .main-price-shift .price-arrow,
+        .main-price-shift .price-shift,
+        .main-price-shift .price-shift-prc {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .main-price-highlow .price-high-title,
+        .main-price-highlow .price-low-title,
+        .main-market-avg .market-cur-avg-title,
+        .main-market-avg .market-24h-avg-title {
+            color: #999;
+            float: left;
+            padding-right: 5px;
+            text-align: right;
+            width: 50%;
+        }
+
+        .main-price-highlow .price-high,
+        .main-price-highlow .price-low,
+        .main-market-avg .market-cur-avg,
+        .main-market-avg .market-24h-avg {
+            float: right;
+            padding-left: 5px;
+            text-align: left;
+            width: 50%;
+        }
+
+    </style>
+</head>
+<body style="padding:0;margin:0; overflow: hidden">
+
+<div class="chartWithOverlay col-md-12 text-center">
+    <div id="small-chart"></div>
+    <div class="overlay" onclick="toggleDateFrame('EUR');">
+        <div class="currentPrice"><span id="lastPrice">...</span>€</div>
+    </div>
+
+    <div class="row strip active overlayPriceShift" onclick="toggleDateFrame('EUR');">
+        <div class="col-md-6 col-xs-6 main-price-shift">
+            <div class="price-shift-title">24h price change</div>
+            <div class="price-arrow"></div>
+            <div class="price-shift"></div>
+            <div class="price-shift-prc"></div>
+        </div>
+
+        <div class="col-md-6 col-xs-6 main-price-highlow">
+            <div class="price-high-title">high</div>
+            <div class="price-high"></div>
+            <div class="price-low-title">low</div>
+            <div class="price-low"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    var config = {"refreshRate": "15000", "exchangesColors": {"btcchina": "#b90c67", "loyalbit": "#b1d9c5", "rocktrading": "#f54840", "coinsecure": "#e1b8df", "bter": "#700daa", "bitstamp": "#c854a4", "gatecoin": "#8dac8b", "coinmate": "#ba5da0", "quickbitcoin": "#86f5eb", "clevercoin": "#7232d6", "bitkonan": "#685d43", "btcgreece": "#d1c8a0", "okcoinintl": "#f3bd1a", "btcxindia": "#fbcba6", "coinfloor": "#32092f", "btcmarkets": "#28df64", "bitcoin_co_id": "#ca1581", "btce": "#14e58c", "bitx": "#889a56", "quadrigacx": "#d44e96", "okcoin": "#547831", "bitso": "#da5d79", "huobi": "#7bb9ca", "independentreserve": "#1e9174", "bitbargain": "#84ce21", "gdax": "#062a60", "bit2c": "#db009f", "foxbit": "#57e79a", "ccedk": "#d5ebda", "taurus": "#ebf25e", "hitbtc": "#524a6d", "mercado": "#5bd053", "btc38": "#a5a76e", "kraken": "#80cd46", "cex": "#4fccab", "localbitcoins": "#7ea049", "paymium": "#ea6835", "bitonic": "#54c2e0", "bitfinex": "#af3e20", "bittylicious": "#89dca5", "bitbay": "#64c44e", "campbx": "#69d989", "bitex": "#c2ff4a", "bitcoin_de": "#108b53", "itbit": "#464afd"}, "currencyOrder": ["USD", "EUR", "CNY", "GBP", "CAD", "PLN", "RUB", "AUD", "SEK", "BRL", "NZD", "SGD", "ZAR", "NOK", "ILS", "RON", "MXN", "IDR", "JPY", "INR", "HKD"], "scaleDivizer": 1, "majorCurrencies": 5, "legendSlots": 20, "precision": 2, "currencySymbols": {"USD": ["0024"], "IDR": [], "ILS": ["20aa"], "GBP": ["00a3"], "CAD": ["0024"], "JPY": ["00a5"], "RON": [], "SEK": ["006b", "0072"], "SGD": ["0024"], "HKD": ["0024"], "AUD": ["0024"], "CHF": [], "CNY": ["00a5"], "TRY": [], "NZD": ["0024"], "EUR": ["20ac"], "NOK": ["006b", "0072"], "RUB": [], "INR": ["20B9"], "MXN": [], "BRL": ["0052", "0024"], "PLN": ["007a", "0142"], "ZAR": ["0052"]}, "apiUsers": [{"image": "./img/bitcoin-wallet.png", "href": "https://play.google.com/store/apps/details?id=de.schildbach.wallet", "name": "Bitcoin Wallet"}, {"image": "./img/Purse.png", "href": "https://app.purse.io/signup?_a=BitcoinAverage", "name": "Purse.io"}, {"image": "./img/bitbond.png", "href": "https://www.bitbond.com/?a=2Q7N9H4XTZ", "name": "Bitbond"}, {"image": "./img/mycelium.png", "href": "https://play.google.com/store/apps/details?id=com.mycelium.wallet", "name": "Mycelium"}, {"image": "./img/localbitcoins.png", "href": "https://localbitcoins.com/?ch=22yh", "name": "Localbitcoins"}, {"image": "./img/kryptokit.png", "href": "http://www.kryptokit.com/", "name": "KryptoKit"}, {"image": "./img/lamassu.png", "href": "https://lamassu.is/", "name": "Lamassu"}, {"image": "./img/greenaddress.png", "href": "https://greenaddress.it", "name": "GreenAddress"}, {"image": "./img/kitco.png", "href": "http://www.kitco.com/finance/bitcoin/", "name": "Kitco"}], "chartType": "linear", "apiIndexUrl": "https://api.bitcoinaverage.com/", "apiHistoryIndexUrl": "https://api.bitcoinaverage.com/history/"};
+
+    var currencyCode = 'EUR';
+
+    var global_avg_url = 'https://api.bitcoinaverage.com/history/';
+    var data_24h_URL = global_avg_url + currencyCode + '/per_minute_24h_sliding_window.csv';
+    var monthly_URL  = global_avg_url + currencyCode + '/per_hour_monthly_sliding_window.csv';
+    var all_time_URL = global_avg_url + currencyCode + '/per_day_all_time_history.csv';
+
+    var loadDataFrom = data_24h_URL;
+    var chartTitle = ' 24h price movement';
+
+    function toggleDateFrame(currencyCode) {
+        if(loadDataFrom == data_24h_URL) {
+            loadDataFrom = monthly_URL;
+            chartTitle = ' monthly price movement';
+            //}else if(loadDataFrom == monthly_URL) {
+            //    loadDataFrom = all_time_URL;
+            //    chartTitle = ' all time price movement';
+        }else if(loadDataFrom == monthly_URL) {
+            loadDataFrom = data_24h_URL;
+            chartTitle = ' 24h price movement';
+        }
+        renderSmallChart(currencyCode);
+    }
+
+    function getCurrencySymbol(curCode) {
+        var symbol = '';
+        var codes = config.currencySymbols[curCode];
+        if (codes) {
+            for (var i = 0; i < codes.length; i++) {
+                symbol += String.fromCharCode(parseInt(codes[i], 16));
+            }
+        }
+        return symbol;
+    }
+
+    var renderSmallChart = function(currencyCode){
+
+        $.get(loadDataFrom, function(csv){
+            var data = [];
+            $.each(csv.split('\n'), function(i, line){
+                var values = line.split(',');
+                if(i == 0 || line.length == 0){
+                    return;
+                }
+
+                var chartDailyValue = parseFloat(values.slice(-1)[0]) / config.scaleDivizer;
+                var dateStr = values[0];
+                var dateData = dateStr.split(' ');
+                dateData[0] = dateData[0].split('-');
+                dateData[1] = dateData[1].split(':');
+                var dateInt = Date.UTC(dateData[0][0], dateData[0][1] - 1, dateData[0][2], dateData[1][0], dateData[1][1], dateData[1][2]);
+                data.push([dateInt, chartDailyValue]);
+            });
+            data.sort(function(a,b){
+                if (a[0] > b[0]){
+                    return 1;
+                } else if (a[0] < b[0]){
+                    return -1;
+                } else {
+                    return -0;
+                }
+            });
+
+            var priceShift = data[data.length - 1][1] - data[0][1];
+            var priceShiftPercentage = priceShift / data[0][1] * 100;
+            $('.main-price-shift .price-arrow').text(priceShift < 0 ? '▼' : '▲');
+            $('.main-price-shift').attr('data-trend', priceShift < 0 ? 'down' : 'up');
+            $('.main-price-shift .price-shift').text(priceShift).formatCurrency({
+                symbol: getCurrencySymbol(currencyCode),
+                positiveFormat: '%s%n ' + currencyCode,
+                negativeFormat: '%s%n ' + currencyCode,
+                roundToDecimalPlace: config.precision
+            });
+            $('.main-price-shift .price-shift-prc').text(Math.abs(priceShiftPercentage).toFixed(2) + '%');
+
+            var prices = $.map(data, function (e, i) { return e[1]; });
+            $('.main-price-highlow .price-high')
+                    .text(Math.max.apply(Math, prices))
+                    .formatCurrency({
+                        symbol: getCurrencySymbol(currencyCode),
+                        positiveFormat: '%s%n ' + currencyCode,
+                        roundToDecimalPlace: config.precision
+                    });
+            $('.main-price-highlow .price-low')
+                    .text(Math.min.apply(Math, prices))
+                    .formatCurrency({
+                        symbol: getCurrencySymbol(currencyCode),
+                        positiveFormat: '%s%n ' + currencyCode,
+                        roundToDecimalPlace: config.precision
+                    });
+
+            $('#lastPrice').text(parseInt(data[data.length-1][1]));
+
+            $('#small-chart').html('');
+
+            $('#small-chart').highcharts('StockChart', {
+                chart : {
+                    animation : false,
+                    events: {
+                        click: function(e){
+                            toggleDateFrame(currencyCode);
+                        }
+                    },
+                    spacingBottom: 5,
+                    spacingLeft: 0,
+                    spacingRight: 0,
+                    spacingTop: 0,
+                    marginTop: 0,
+                    //backgroundColor: '#000000'
+                },
+                rangeSelector: {enabled: false},
+                title: {text: currencyCode+chartTitle},
+                scrollbar: {enabled: false},
+                navigator: {enabled: false},
+                exporting: {enabled: false},
+                tooltip: {
+                    enabled : true,
+                    valueDecimals: 2
+                },
+                credits: {enabled : false},
+                series : [{
+                    animation: false,
+                    name: currencyCode,
+                    data: data,
+                    cursor: 'pointer',
+                    events: {
+                        click: function(event){
+                            toggleDateFrame(currencyCode);
+                        }
+                    }
+                }]
+
+            });
+        });
+    };
+
+    renderSmallChart('EUR');
+    setInterval(function(){renderSmallChart('EUR')}, 1000*60);
+</script></body></html>
